@@ -26,16 +26,14 @@ const gameFlow = ((pOne, pTwo) => {
     };
 
     // for console before DOM developed
-    const printBoard = () => {
-        const board = gameBoard.getBoard();
-
+    const printBoard = board => {
         for (let i = 0; i < 3; i += 3) {
             console.log(`${board[i]} ${board[i + 1]} ${board[i + 2]}`);
         }
     };
 
     // wincon
-    const isWinner = () => {
+    const isWinner = board => {
         const allEqual = line => line.every(cell => cell === arr[0]);
         const winPatterns = {
             '1': [board[0], board[3], board[6]],
@@ -61,11 +59,13 @@ const gameFlow = ((pOne, pTwo) => {
     };
 
     const playTurn = (pos) => {
+        const board = gameBoard.getBoard();
+
         console.log(`${activePlayer}'s turn!`);
         gameBoard.addToBoard(activePlayer.token, pos);
-        printBoard();
+        printBoard(board);
 
-        if (isWinner()) {
+        if (isWinner(board)) {
             endGame();
         }
         else {
