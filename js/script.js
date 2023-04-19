@@ -36,8 +36,8 @@ const gameFlow = ((pOne, pTwo) => {
 
     // wincon
     const isWinner = () => {
-        const allEqual = arr => arr.every(el => el === arr[0]);
-        const wincons = {
+        const allEqual = line => line.every(cell => cell === arr[0]);
+        const winPatterns = {
             '1': [board[0], board[3], board[6]],
             '2': [board[0], board[4], board[8]],
             '3': [board[0], board[1], board[2]],
@@ -48,8 +48,8 @@ const gameFlow = ((pOne, pTwo) => {
             '8': [board[6], board[7], board[8]]
         };
 
-        for (const wincon in wincons) {
-            if (allEqual(wincons[wincon])) {
+        for (const pattern in winPatterns) {
+            if (allEqual(winPatterns[pattern])) {
                 return true;
             }
         }
