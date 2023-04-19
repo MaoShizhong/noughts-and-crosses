@@ -1,5 +1,13 @@
+const playerFactory = (name, controller, token) => {
+    return { name, controller, token };
+};
+
+const playerOne = playerFactory('Player 1', 'human', 'X');
+const playerTwo = playerFactory('Player 2', 'human', 'O');
+
+
 const gameBoard = (() => {
-    const board = Array(9);
+    const board = Array(9).fill('-');
 
     // makes board variable private (closure)
     const getBoard = () => board;
@@ -10,6 +18,7 @@ const gameBoard = (() => {
 
     return { getBoard, addToBoard };
 })();
+
 
 const gameFlow = ((pOne, pTwo) => {
     let activePlayer = pOne;
@@ -27,15 +36,17 @@ const gameFlow = ((pOne, pTwo) => {
 
     // for console before DOM developed
     const printBoard = board => {
-        for (let i = 0; i < 3; i += 3) {
+        for (let i = 0; i < 9; i += 3) {
             console.log(`${board[i]} ${board[i + 1]} ${board[i + 2]}`);
         }
     };
 
     // wincon
     const isWinner = board => {
-        const allEqual = line => line.every(cell => cell === arr[0]);
-        const winPatterns = {
+        const allX = line => line.every(cell => cell === 'X');
+        const allO = line => line.every(cell => cell === 'O');
+
+        const checkPatterns = {
             '1': [board[0], board[3], board[6]],
             '2': [board[0], board[4], board[8]],
             '3': [board[0], board[1], board[2]],
@@ -46,46 +57,47 @@ const gameFlow = ((pOne, pTwo) => {
             '8': [board[6], board[7], board[8]]
         };
 
-        for (const pattern in winPatterns) {
-            if (allEqual(winPatterns[pattern])) {
+        for (const pattern in checkPatterns) {
+            if (allX(checkPatterns[pattern]) || allO(checkPatterns[pattern])) {
                 return true;
             }
         }
         return false;
     }
 
-    const endGame = () => {
+    const endGame = board => {
         gameInProgress = false;
+        if (!isWinner(board)) {
+            console.log("It's a tie!");
+        }
+        else {
+            console.log(`${activePlayer.name} won!`);
+        }
     };
 
     const playTurn = (pos) => {
         const board = gameBoard.getBoard();
 
-        console.log(`${activePlayer}'s turn!`);
+        console.log(`${activePlayer.name}'s turn!`);
         gameBoard.addToBoard(activePlayer.token, pos);
         printBoard(board);
 
-        if (isWinner(board)) {
-            endGame();
+        const isFullBoard = !board.every(cell => cell === 'X' || cell === 'O');
+
+        if (isWinner(board) || isFullBoard) {
+            endGame(board);
         }
         else {
             changeTurns();
+            console.log();
         }
     };
 
     return { getActivePlayer, inProgress, playTurn };
-})();
+})(playerOne, playerTwo);
 
 
 // to update DOM display
 // const displayController = (() => {
 
 // })();
-
-
-const playerFactory = (controller, token) => {
-    return { controller, token };
-};
-
-const playerOne = playerFactory('human', 'X');
-const playerTwo = playerFactory('human', 'O');
