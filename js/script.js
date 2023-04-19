@@ -75,14 +75,20 @@ const gameFlow = ((pOne, pTwo) => {
         }
     };
 
-    const playTurn = (pos) => {
+    const playTurn = pos => {
         const board = gameBoard.getBoard();
 
         console.log(`${activePlayer.name}'s turn!`);
+
+        if (board[pos] === 'X' || board[pos] === 'O') {
+            console.log("Space taken! Please pick another space.");
+            return;
+        }
+
         gameBoard.addToBoard(activePlayer.token, pos);
         printBoard(board);
 
-        const isFullBoard = !board.every(cell => cell === 'X' || cell === 'O');
+        const isFullBoard = board.every(cell => cell === 'X' || cell === 'O');
 
         if (isWinner(board) || isFullBoard) {
             endGame(board);
@@ -101,3 +107,7 @@ const gameFlow = ((pOne, pTwo) => {
 // const displayController = (() => {
 
 // })();
+
+gameFlow.playTurn(5);
+gameFlow.playTurn(5);
+gameFlow.playTurn(7);
