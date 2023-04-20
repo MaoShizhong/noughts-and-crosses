@@ -1,9 +1,10 @@
-const playerFactory = (name, controller, token) => {
-    return { name, controller, token };
+const playerFactory = (name, token) => {
+    return { name, token };
 };
 
-const playerOne = playerFactory('Player 1', 'human', 'X');
-const playerTwo = playerFactory('Player 2', 'human', 'O');
+const playerOne = playerFactory('Player 1', 'X');
+const human = playerFactory('Player 2', 'O');
+// let opponent;
 
 
 const gameBoard = (() => {
@@ -21,6 +22,24 @@ const gameBoard = (() => {
     return { getBoard, clearBoard, addToBoard };
 })();
 
+const AI = (() => {
+    const name = 'AI';
+    const token = 'O';
+
+    const chooseSpace = () => {
+          const board = gameBoard.getBoard();
+
+          let space;
+          do {
+            space = Math.floor(Math.random() * 8) ;
+          } while (board[space] !== '-');
+
+          return space;
+    };
+
+    return { name, token, chooseSpace };
+})();
+
 
 const gameFlow = ((pOne, pTwo) => {
     let activePlayer = pOne;
@@ -35,6 +54,7 @@ const gameFlow = ((pOne, pTwo) => {
     const isTie = () => tie;
 
     const startNewGame = () => {
+        activePlayer = pOne;
         gameInProgress = true;
         tie = false;
         gameBoard.clearBoard();
@@ -82,21 +102,28 @@ const gameFlow = ((pOne, pTwo) => {
         
         const isFullBoard = board.every(cell => cell === 'X' || cell === 'O');
 
+        changeTurns();
+
         if (isWinner(board) || isFullBoard) {
             endGame(board);
-        }
-        else {
-            changeTurns();
         }
     };
 
     return { getActivePlayer, inProgress, isTie, startNewGame, playTurn };
-})(playerOne, playerTwo);
+})(playerOne, AI);
 
 
 // to update DOM display
 const displayController = (() => {
     const container = document.querySelector('#grid-container');
+
+    const disableCells = () => {
+        cells.forEach(cell => cell.disabled = true);
+    };
+
+    const enableCells = () => {
+        cells.forEach(cell => cell.disabled = false);
+    };
 
     const displayMessage = message => {
         if (container.childElementCount === 1) {
@@ -127,12 +154,43 @@ const displayController = (() => {
         })
     };
 
-    const playMove = e => {
+    const displayResults = name => {
+        if (gameFlow.isTie()) {
+            displayMessage('Tie!');
+        }
+        else {
+            displayMessage(`${name} wins!`);
+        }
+
+        displayResetBtn();
+        disableCells();
+    };
+
+    const putAIMoveOnBoard = pos => {
+        cells.forEach(cell => {
+            if (cell.value === `${pos}`) {
+                cell.innerHTML = `${AI.token}`;
+            }
+        });
+    };
+
+    const playAIMove = () => {
+        const AIMove = AI.chooseSpace();
+        gameFlow.playTurn(AIMove);
+        putAIMoveOnBoard(AIMove);
+    };
+
+    const wait = milliseconds => {
+        return new Promise(resolve => setTimeout(resolve, milliseconds));
+    }
+
+    const playMove = async e => {
         const player = gameFlow.getActivePlayer();
         gameFlow.playTurn(e.target.value);
 
         if (e.target.innerHTML) {
             displayMessage('Space taken! Choose another square.');
+            return;
         }
         else {
             if (container.childElementCount !== 1) {
@@ -142,15 +200,22 @@ const displayController = (() => {
         }
 
         if (!gameFlow.inProgress()) {
-            if (gameFlow.isTie()) {
-                displayMessage('Tie!');
-            }
-            else {
-                displayMessage(`${player.name} wins!`);
-            }
+            displayResults(player.name);
+            return;
+        }
 
-            displayResetBtn();
-            cells.forEach(cell => cell.disabled = true);
+        // will be skipped if human vs human
+        if (true) {
+            disableCells();
+            const delay = Math.random() * (2300 - 900) + 900;
+            setTimeout(playAIMove, delay);
+            await wait(delay);
+            enableCells();
+
+            if (!gameFlow.inProgress()) {
+                displayResults(AI.name);
+                return;
+            }
         }
     };
 
@@ -159,10 +224,19 @@ const displayController = (() => {
 })();
 
 
+// const opponents = document.querySelectorAll('.opponent');
+// opponents.forEach(btn => btn.addEventListener('click', setOpponent));
+
+// function setOpponent(e) {
+//     opponent = e.target.value === 'human' ? human : AI;
+// }
+
 // change themes
-document.querySelector('#theme').addEventListener('click', e => {
-    const doc = document.querySelector('html');
-    doc.classList.toggle('dark');
-    doc.classList.toggle('light');
-    e.target.textContent = doc.classList.contains('dark') ? 'Dark' : 'Light';
-});
+document.querySelector('#theme').addEventListener('click', changeTheme);
+
+function changeTheme(e) {
+        const doc = document.querySelector('html');
+        doc.classList.toggle('dark');
+        doc.classList.toggle('light');
+        e.target.textContent = doc.classList.contains('dark') ? 'Dark' : 'Light';
+}

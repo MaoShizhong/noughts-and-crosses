@@ -32,6 +32,12 @@ body {
     &>* {
         margin: 0.4rem;
     }
+
+    & .opponent {
+        font-size: inherit;
+        font-weight: inherit;
+        margin: 0.4rem 1rem;
+    }
 }
 
 #grid-container {
