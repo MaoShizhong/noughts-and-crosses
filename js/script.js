@@ -85,6 +85,7 @@ const gameFlow = ((pOne, pTwo) => {
 
         gameBoard.addToBoard(activePlayer.token, pos);
         printBoard(board);
+        
 
         const isFullBoard = board.every(cell => cell === 'X' || cell === 'O');
 
@@ -93,7 +94,6 @@ const gameFlow = ((pOne, pTwo) => {
         }
         else {
             changeTurns();
-            console.log();
         }
     };
 
@@ -103,7 +103,29 @@ const gameFlow = ((pOne, pTwo) => {
 
 // to update DOM display
 const displayController = (() => {
+    // const announceWinner = player => {
 
+    // };
+
+    const playMove = e => {
+        const player = gameFlow.getActivePlayer();
+        gameFlow.playTurn(e.target.value);
+
+        if (e.target.innerHTML) {
+            // show div asking to pick another move
+        }
+        else {
+            e.target.innerHTML = `${player.token}`;
+        }
+
+        if (!gameFlow.inProgress()) {
+            // announceWinner(player.name);
+            cells.forEach(cell => cell.disabled = true);
+        }
+    };
+
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => cell.addEventListener('click', playMove))
 })();
 
 // change themes
