@@ -1,11 +1,6 @@
-const playerFactory = (name, token) => {
+const player = ((name, token) => {
     return { name, token };
-};
-
-const playerOne = playerFactory('Player 1', 'X');
-const human = playerFactory('Player 2', 'O');
-// let opponent;
-
+})('You', 'X');
 
 const gameBoard = (() => {
     const board = Array(9).fill('-');
@@ -23,7 +18,7 @@ const gameBoard = (() => {
 })();
 
 const AI = (() => {
-    const name = 'AI';
+    const name = 'The AI';
     const token = 'O';
 
     const chooseSpace = () => {
@@ -39,7 +34,6 @@ const AI = (() => {
 
     return { name, token, chooseSpace };
 })();
-
 
 const gameFlow = ((pOne, pTwo) => {
     let activePlayer = pOne;
@@ -110,7 +104,7 @@ const gameFlow = ((pOne, pTwo) => {
     };
 
     return { getActivePlayer, inProgress, isTie, startNewGame, playTurn };
-})(playerOne, AI);
+})(player, AI);
 
 
 // to update DOM display
@@ -159,7 +153,7 @@ const displayController = (() => {
             displayMessage('Tie!');
         }
         else {
-            displayMessage(`${name} wins!`);
+            displayMessage(`${name} ${name === 'You' ? 'win' : 'wins'}!`);
         }
 
         displayResetBtn();
@@ -174,7 +168,19 @@ const displayController = (() => {
         });
     };
 
-    const playAIMove = () => {
+    const playAITurn = async () => {
+        disableCells();
+        const delay = Math.random() * (2300 - 900) + 900;
+        setTimeout(makeAIMove, delay);
+        await wait(delay);
+        enableCells();
+
+        if (!gameFlow.inProgress()) {
+            displayResults(AI.name);
+        }
+    };
+
+    const makeAIMove = () => {
         const AIMove = AI.chooseSpace();
         gameFlow.playTurn(AIMove);
         putAIMoveOnBoard(AIMove);
@@ -192,11 +198,10 @@ const displayController = (() => {
             displayMessage('Space taken! Choose another square.');
             return;
         }
-        else {
-            if (container.childElementCount !== 1) {
-                container.removeChild(container.lastChild);
-            }
-            e.target.innerHTML = `${player.token}`;
+        e.target.innerHTML = `${player.token}`;
+
+        if (container.childElementCount !== 1) {
+            container.removeChild(container.lastChild);
         }
 
         if (!gameFlow.inProgress()) {
@@ -204,32 +209,12 @@ const displayController = (() => {
             return;
         }
 
-        // will be skipped if human vs human
-        if (true) {
-            disableCells();
-            const delay = Math.random() * (2300 - 900) + 900;
-            setTimeout(playAIMove, delay);
-            await wait(delay);
-            enableCells();
-
-            if (!gameFlow.inProgress()) {
-                displayResults(AI.name);
-                return;
-            }
-        }
+        playAITurn();
     };
 
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => cell.addEventListener('click', playMove))
 })();
-
-
-// const opponents = document.querySelectorAll('.opponent');
-// opponents.forEach(btn => btn.addEventListener('click', setOpponent));
-
-// function setOpponent(e) {
-//     opponent = e.target.value === 'human' ? human : AI;
-// }
 
 // change themes
 document.querySelector('#theme').addEventListener('click', changeTheme);
