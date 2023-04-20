@@ -1,9 +1,9 @@
-const playerFactory = (name, controller, token) => {
-    return { name, controller, token };
+const playerFactory = (id, name, controller, token) => {
+    return { id, name, controller, token };
 };
 
-const playerOne = playerFactory('Player 1', 'human', 'X');
-const playerTwo = playerFactory('Player 2', 'human', 'O');
+const playerOne = playerFactory('p-one', 'Player 1', 'human', 'X');
+const playerTwo = playerFactory('p-two', 'Player 2', 'human', 'O');
 
 
 const gameBoard = (() => {
@@ -103,23 +103,36 @@ const gameFlow = ((pOne, pTwo) => {
 
 // to update DOM display
 const displayController = (() => {
-    // const announceWinner = player => {
+    const container = document.querySelector('#grid-container');
 
-    // };
+    const displayMessage = message => {
+        if (container.childElementCount === 1) {
+            const alert = document.createElement('h1');
+            alert.setAttribute('id', 'message');
+            alert.textContent = `${message}`;
+            container.appendChild(alert);
+        }
+        else {
+            container.lastChild.textContent = `${message}`;
+        }
+    }
 
     const playMove = e => {
         const player = gameFlow.getActivePlayer();
         gameFlow.playTurn(e.target.value);
 
         if (e.target.innerHTML) {
-            // show div asking to pick another move
+            displayMessage('Space taken! Choose another square.');
         }
         else {
+            if (container.childElementCount !== 1) {
+                container.removeChild(container.lastChild);
+            }
             e.target.innerHTML = `${player.token}`;
         }
 
         if (!gameFlow.inProgress()) {
-            // announceWinner(player.name);
+            displayMessage(`${player.name} wins!`);
             cells.forEach(cell => cell.disabled = true);
         }
     };
