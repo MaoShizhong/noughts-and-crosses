@@ -13,6 +13,7 @@
 body {
     background-color: var(--background);
     font-family: 'Orbitron', sans-serif;
+    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -50,6 +51,17 @@ body {
        justify-content: center;
        align-items: center;
     }
+}
+
+#theme {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    border: none;
+    background-color: transparent;
+    color: var(--features);
+    font-family: inherit;
+    font-weight: 900;
 }
 
 button:hover {
