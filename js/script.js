@@ -1,9 +1,9 @@
-const playerFactory = (id, name, controller, token) => {
-    return { id, name, controller, token };
+const playerFactory = (name, controller, token) => {
+    return { name, controller, token };
 };
 
-const playerOne = playerFactory('p-one', 'Player 1', 'human', 'X');
-const playerTwo = playerFactory('p-two', 'Player 2', 'human', 'O');
+const playerOne = playerFactory('Player 1', 'human', 'X');
+const playerTwo = playerFactory('Player 2', 'human', 'O');
 
 
 const gameBoard = (() => {
@@ -12,33 +12,36 @@ const gameBoard = (() => {
     // makes board variable private (closure)
     const getBoard = () => board;
 
+    const clearBoard = () => board.fill('-');
+
     const addToBoard = (token, i) => {
         board[i] = token;
     }
 
-    return { getBoard, addToBoard };
+    return { getBoard, clearBoard, addToBoard };
 })();
 
 
 const gameFlow = ((pOne, pTwo) => {
     let activePlayer = pOne;
     let gameInProgress = true;
+    let tie = false;
 
     // for DOM to disply current player
     const getActivePlayer = () => activePlayer;
 
     // provides closure for progress state
     const inProgress = () => gameInProgress;
+    const isTie = () => tie;
+
+    const startNewGame = () => {
+        gameInProgress = true;
+        tie = false;
+        gameBoard.clearBoard();
+    }
     
     const changeTurns = () => {
         activePlayer = (activePlayer === pOne) ? pTwo : pOne;
-    };
-
-    // for console before DOM developed
-    const printBoard = board => {
-        for (let i = 0; i < 9; i += 3) {
-            console.log(`${board[i]} ${board[i + 1]} ${board[i + 2]}`);
-        }
     };
 
     // wincon
@@ -68,25 +71,15 @@ const gameFlow = ((pOne, pTwo) => {
     const endGame = board => {
         gameInProgress = false;
         if (!isWinner(board)) {
-            console.log("It's a tie!");
-        }
-        else {
-            console.log(`${activePlayer.name} won!`);
+            tie = true;
         }
     };
 
     const playTurn = pos => {
         const board = gameBoard.getBoard();
 
-        if (board[pos] === 'X' || board[pos] === 'O') {
-            console.log("Space taken! Please pick another space.");
-            return;
-        }
-
         gameBoard.addToBoard(activePlayer.token, pos);
-        printBoard(board);
         
-
         const isFullBoard = board.every(cell => cell === 'X' || cell === 'O');
 
         if (isWinner(board) || isFullBoard) {
@@ -97,7 +90,7 @@ const gameFlow = ((pOne, pTwo) => {
         }
     };
 
-    return { getActivePlayer, inProgress, playTurn };
+    return { getActivePlayer, inProgress, isTie, startNewGame, playTurn };
 })(playerOne, playerTwo);
 
 
@@ -115,7 +108,24 @@ const displayController = (() => {
         else {
             container.lastChild.textContent = `${message}`;
         }
-    }
+    };
+
+    const displayResetBtn = () => {
+        const reset = document.createElement('button');
+        reset.setAttribute('id', 'reset');
+        reset.textContent = 'Reset Game';
+        container.appendChild(reset);
+
+        reset.addEventListener('click', () => {
+            gameFlow.startNewGame();
+            cells.forEach(cell => {
+                cell.innerHTML = '';
+                cell.disabled = false;
+            });
+            container.removeChild(container.lastChild);
+            container.removeChild(container.lastChild);
+        })
+    };
 
     const playMove = e => {
         const player = gameFlow.getActivePlayer();
@@ -132,7 +142,14 @@ const displayController = (() => {
         }
 
         if (!gameFlow.inProgress()) {
-            displayMessage(`${player.name} wins!`);
+            if (gameFlow.isTie()) {
+                displayMessage('Tie!');
+            }
+            else {
+                displayMessage(`${player.name} wins!`);
+            }
+
+            displayResetBtn();
             cells.forEach(cell => cell.disabled = true);
         }
     };
@@ -140,6 +157,7 @@ const displayController = (() => {
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => cell.addEventListener('click', playMove))
 })();
+
 
 // change themes
 document.querySelector('#theme').addEventListener('click', e => {
