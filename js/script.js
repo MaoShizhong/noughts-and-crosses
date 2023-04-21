@@ -3,34 +3,43 @@ const player = ((name, token) => {
 })('You', 'X');
 
 const gameBoard = (() => {
-    const board = Array(9).fill('-');
+    const board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
     // makes board variable private (closure)
     const getBoard = () => board;
 
-    const clearBoard = () => board.fill('-');
+    const clearBoard = () => {
+        board.length = 0;
+        board.push(...Array(9).keys());
+    };
 
     const addToBoard = (token, i) => {
         board[i] = token;
-    }
+    };
 
-    return { getBoard, clearBoard, addToBoard };
+    const isFull = () => board.every(cell => cell === 'X' || cell === 'O');
+
+    return { getBoard, clearBoard, addToBoard, isFull };
 })();
 
 const AI = (() => {
     const name = 'The AI';
     const token = 'O';
 
-    const chooseSpace = () => {
-          const board = gameBoard.getBoard();
+    // const chooseSpace = () => {
+    //       const board = gameBoard.getBoard();
 
-          let space;
-          do {
-            space = Math.floor(Math.random() * 8) ;
-          } while (board[space] !== '-');
+    //       let space;
+    //       do {
+    //         space = Math.floor(Math.random() * 8) ;
+    //       } while (board[space] !== '-');
 
-          return space;
-    };
+    //       return space;
+    // };
+
+    // const chooseBestSpace = () => {
+
+    // };
 
     return { name, token, chooseSpace };
 })();
@@ -93,12 +102,10 @@ const gameFlow = ((pOne, pTwo) => {
         const board = gameBoard.getBoard();
 
         gameBoard.addToBoard(activePlayer.token, pos);
-        
-        const isFullBoard = board.every(cell => cell === 'X' || cell === 'O');
 
         changeTurns();
 
-        if (isWinner(board) || isFullBoard) {
+        if (isWinner(board) || gameBoard.isFull()) {
             endGame(board);
         }
     };
