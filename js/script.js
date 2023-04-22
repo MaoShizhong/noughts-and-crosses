@@ -21,17 +21,6 @@ const AI = (() => {
     const name = 'The AI';
     const token = 'O';
 
-    // const chooseSpace = () => {
-    //       const board = gameBoard.getBoard();
-
-    //       let space;
-    //       do {
-    //         space = Math.floor(Math.random() * 8) ;
-    //       } while (board[space] !== '-');
-
-    //       return space;
-    // };
-
     const chooseBestSpace = () => {
         const board = gameBoard.getBoard();
         let bestScore = -100;
@@ -57,7 +46,8 @@ const AI = (() => {
 
     const minimax = (board, depth, isAITurn) => {
         if (gameFlow.isWinner(board)) {
-            return board.filter(token => token !== '').length % 2 === 0 ? 100 - depth : -100 + depth;
+            const winnerIsAI = board.filter(token => token !== '').length % 2 === 0;
+            return winnerIsAI ? 100 - depth : -100 + depth;
         }
         else if (gameBoard.isFull(board)) {
             return 0;
