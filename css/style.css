@@ -24,6 +24,7 @@ body {
 }
 
 .player {
+    position: relative;
     color: var(--features);
     display: flex;
     flex-direction: column;
@@ -32,13 +33,25 @@ body {
 
     &>* {
         margin: 0.4rem;
+        text-underline-offset: 0.5rem;
     }
+}
 
-    & .opponent {
-        font-size: inherit;
-        font-weight: inherit;
-        margin: 0.4rem 1rem;
-    }
+.active-turn {
+    text-decoration: underline;
+    text-underline-offset: 0.5rem;
+}
+
+#thinking{
+    position: absolute;
+    bottom: 5rem;
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 #grid-container {
@@ -104,4 +117,8 @@ button {
     &:hover {
         cursor: pointer;
     }
+}
+
+.hidden {
+    display: none;
 }

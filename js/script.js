@@ -221,12 +221,30 @@ const displayController = (() => {
         });
     };
 
+    const switchUnderline = () => {
+        const players = document.querySelectorAll('.player>h1');
+        players.forEach(player => player.classList.toggle('active-turn'));
+    }
+
+    const toggleThinking = () => {
+        const thinking = document.querySelector('#thinking');
+        thinking.classList.toggle('hidden');
+    }
+
     const playAITurn = async () => {
         disableCells();
-        const delay = Math.random() * (2300 - 900) + 900;
+
+        let delay = Math.random() * (3500 - 900) + 900;
+        // weight in favour of shorter waiting times
+        if (delay > 2500) {
+            delay = Math.random() * (3500 - 900) + 900;
+        }
+
         setTimeout(makeAIMove, delay);
         await wait(delay);
         enableCells();
+        switchUnderline();
+        toggleThinking();
 
         if (!gameFlow.inProgress()) {
             displayResults(AI.name);
@@ -256,6 +274,9 @@ const displayController = (() => {
         if (container.childElementCount !== 1) {
             container.removeChild(container.lastChild);
         }
+
+        switchUnderline();
+        toggleThinking();
 
         if (!gameFlow.inProgress()) {
             displayResults(player.name);
