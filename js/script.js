@@ -8,13 +8,11 @@ const gameBoard = (() => {
     // makes board variable private (closure)
     const getBoard = () => board;
 
-    const clearBoard = () => {
-        board.fill('');
-    };
+    const clearBoard = () => board.fill('');
 
     const addToBoard = (token, i) => board[i] = token;
 
-    const isFull = () => board.every(cell => cell === 'X' || cell === 'O');
+    const isFull = board => board.every(cell => cell === 'X' || cell === 'O');
 
     return { getBoard, clearBoard, addToBoard, isFull };
 })();
@@ -34,11 +32,72 @@ const AI = (() => {
     //       return space;
     // };
 
-    // const chooseBestSpace = () => {
+    const chooseBestSpace = () => {
+        const board = gameBoard.getBoard();
+        let bestScore = -100;
+        let bestSpace;
 
-    // };
+        for (let i = 0; i < 9; i++) {
+            if (board[i] === '') {
+                board[i] = token;
+                let eval = minimax(board, 0, false);
 
-    return { name, token, chooseSpace };
+                if (eval > bestScore) {
+                    bestScore = eval;
+                    bestSpace = i;
+                }
+
+                // undo move after call stack unwind
+                board[i] = '';
+            }
+        }
+
+        return bestSpace;
+    };
+
+    const minimax = (board, depth, isAITurn) => {
+        if (gameFlow.isWinner(board)) {
+            return board.filter(token => token !== '').length % 2 === 0 ? 100 - depth : -100 + depth;
+        }
+        else if (gameBoard.isFull(board)) {
+            return 0;
+        }
+
+        let bestScore;
+
+        if (isAITurn) {
+            bestScore = -100;
+
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = token;
+
+                    const eval = minimax(board, depth + 1, false);
+                    bestScore = Math.max(eval, bestScore);
+
+                    board[i] = ''; 
+                }
+            }
+            return bestScore - depth;
+        }
+        else {
+            bestScore = 100;
+
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = player.token;
+
+                    const eval = minimax(board, depth + 1, true);
+                    bestScore = Math.min(eval, bestScore);
+
+                    board[i] = ''; 
+                }
+            }
+            return bestScore + depth;
+        }
+    }
+
+    return { name, token, chooseBestSpace };
 })();
 
 const gameFlow = ((pOne, pTwo) => {
@@ -63,7 +122,7 @@ const gameFlow = ((pOne, pTwo) => {
     const changeTurns = () => {
         activePlayer = (activePlayer === pOne) ? pTwo : pOne;
     };
-
+    
     // wincon
     const isWinner = board => {
         const allX = line => line.every(cell => cell === 'X');
@@ -102,12 +161,12 @@ const gameFlow = ((pOne, pTwo) => {
 
         changeTurns();
 
-        if (isWinner(board) || gameBoard.isFull()) {
+        if (isWinner(board) || gameBoard.isFull(board)) {
             endGame(board);
         }
     };
 
-    return { getActivePlayer, inProgress, isTie, startNewGame, playTurn };
+    return { getActivePlayer, inProgress, isWinner, isTie, startNewGame, playTurn };
 })(player, AI);
 
 
@@ -185,7 +244,7 @@ const displayController = (() => {
     };
 
     const makeAIMove = () => {
-        const AIMove = AI.chooseSpace();
+        const AIMove = AI.chooseBestSpace();
         gameFlow.playTurn(AIMove);
         putAIMoveOnBoard(AIMove);
     };
