@@ -3,19 +3,16 @@ const player = ((name, token) => {
 })('You', 'X');
 
 const gameBoard = (() => {
-    const board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    const board = Array(9).fill('');
 
     // makes board variable private (closure)
     const getBoard = () => board;
 
     const clearBoard = () => {
-        board.length = 0;
-        board.push(...Array(9).keys());
+        board.fill('');
     };
 
-    const addToBoard = (token, i) => {
-        board[i] = token;
-    };
+    const addToBoard = (token, i) => board[i] = token;
 
     const isFull = () => board.every(cell => cell === 'X' || cell === 'O');
 
