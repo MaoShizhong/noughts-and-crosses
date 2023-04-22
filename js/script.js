@@ -243,12 +243,15 @@ const displayController = (() => {
         setTimeout(makeAIMove, delay);
         await wait(delay);
         enableCells();
-        switchUnderline();
+
         toggleThinking();
+        switchUnderline();
 
         if (!gameFlow.inProgress()) {
             displayResults(AI.name);
         }
+        
+        
     };
 
     const makeAIMove = () => {
@@ -275,14 +278,13 @@ const displayController = (() => {
             container.removeChild(container.lastChild);
         }
 
-        switchUnderline();
-        toggleThinking();
-
         if (!gameFlow.inProgress()) {
             displayResults(player.name);
             return;
         }
 
+        switchUnderline();
+        toggleThinking();
         playAITurn();
     };
 
