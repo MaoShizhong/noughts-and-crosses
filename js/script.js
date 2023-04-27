@@ -47,7 +47,7 @@ const AI = (() => {
     const minimax = (board, depth, isAITurn) => {
         if (gameFlow.isWinner(board)) {
             const winnerIsAI = board.filter(token => token !== '').length % 2 === 0;
-            return winnerIsAI ? 100 - depth : -100 + depth;
+            return winnerIsAI ? 100 : -100;
         }
         else if (gameBoard.isFull(board)) {
             return 0;
@@ -85,8 +85,8 @@ const AI = (() => {
             }
             return bestScore + depth;
         }
-    }
-
+    };
+    
     return { name, token, chooseBestSpace };
 })();
 
@@ -107,7 +107,7 @@ const gameFlow = ((pOne, pTwo) => {
         gameInProgress = true;
         tie = false;
         gameBoard.clearBoard();
-    }
+    };
     
     const changeTurns = () => {
         activePlayer = (activePlayer === pOne) ? pTwo : pOne;
@@ -135,7 +135,7 @@ const gameFlow = ((pOne, pTwo) => {
             }
         }
         return false;
-    }
+    };
 
     const endGame = board => {
         gameInProgress = false;
@@ -250,8 +250,6 @@ const displayController = (() => {
         if (!gameFlow.inProgress()) {
             displayResults(AI.name);
         }
-        
-        
     };
 
     const makeAIMove = () => {
@@ -277,7 +275,6 @@ const displayController = (() => {
         if (container.childElementCount !== 1) {
             container.removeChild(container.lastChild);
         }
-
         if (!gameFlow.inProgress()) {
             displayResults(player.name);
             return;
